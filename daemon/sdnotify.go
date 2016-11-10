@@ -22,20 +22,15 @@ import (
 )
 
 // SdNotify sends a message to the init daemon. It is common to ignore the error.
-// If `unsetEnvironment` is true, the environment variable `NOTIFY_SOCKET`
-// will be unconditionally unset.
 //
 // It returns one of the following:
 // (false, nil) - notification not supported (i.e. NOTIFY_SOCKET is unset)
 // (false, err) - notification supported, but failure happened (e.g. error connecting to NOTIFY_SOCKET or while sending data)
 // (true, nil) - notification supported, data has been sent
-func SdNotify(unsetEnvironment bool, state string) (sent bool, err error) {
+func SdNotify(state string) (sent bool, err error) {
 	socketAddr := &net.UnixAddr{
 		Name: os.Getenv("NOTIFY_SOCKET"),
 		Net:  "unixgram",
-	}
-	if unsetEnvironment {
-		err = os.Unsetenv("NOTIFY_SOCKET")
 	}
 
 	// NOTIFY_SOCKET not set

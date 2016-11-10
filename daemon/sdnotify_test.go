@@ -42,18 +42,17 @@ func TestSdNotify(t *testing.T) {
 	}
 
 	tests := []struct {
-		unsetEnv  bool
 		envSocket string
 
 		wsent bool
 		werr  bool
 	}{
 		// (true, nil) - notification supported, data has been sent
-		{false, notifySocket, true, false},
+		{notifySocket, true, false},
 		// (false, err) - notification supported, but failure happened
-		{true, testDir + "/missing.sock", false, true},
+		{testDir + "/missing.sock", false, true},
 		// (false, nil) - notification not supported
-		{true, "", false, false},
+		{"", false, false},
 	}
 
 	for i, tt := range tests {
@@ -61,7 +60,7 @@ func TestSdNotify(t *testing.T) {
 		if tt.envSocket != "" {
 			must(os.Setenv("NOTIFY_SOCKET", tt.envSocket))
 		}
-		sent, err := SdNotify(tt.unsetEnv, fmt.Sprintf("TestSdNotify test message #%d", i))
+		sent, err := SdNotify(fmt.Sprintf("TestSdNotify test message #%d", i))
 
 		if sent != tt.wsent {
 			t.Errorf("#%d: expected send result %t, got %t", i, tt.wsent, sent)
@@ -71,9 +70,5 @@ func TestSdNotify(t *testing.T) {
 		} else if !tt.werr && err != nil {
 			t.Errorf("#%d: want nil err, got %v", i, err)
 		}
-		if tt.unsetEnv && tt.envSocket != "" && os.Getenv("NOTIFY_SOCKET") != "" {
-			t.Errorf("#%d: environment variable not cleaned up", i)
-		}
-
 	}
 }
